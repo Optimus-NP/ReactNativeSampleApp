@@ -8,3 +8,9 @@
 #   http://developer.android.com/guide/developing/tools/proguard.html
 
 # Add any project specific keep options here:
+
+-keep,allowobfuscation,allowshrinking class kotlin.coroutines.** { *; }
+
+-keep,allowobfuscation,allowshrinking interface retrofit2.** { *; }
+
+-keep,allowobfuscation,allowshrinking class retrofit2.** { *; }
