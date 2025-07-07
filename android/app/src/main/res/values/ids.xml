@@ -1,0 +1,7 @@
+<resources>
+  <item type="id" name="placement_id"/>
+  <item type="id" name="banner_mode"/>
+  <item type="id" name="inline_width_dp"/>
+  <item type="id" name="anchored_width_dp"/>
+  <item type="id" name="banner_height"/>
+</resources>

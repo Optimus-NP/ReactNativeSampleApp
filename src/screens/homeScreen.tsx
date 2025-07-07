@@ -1,68 +1,94 @@
-import {StyleSheet, View} from 'react-native';
-import {Button} from '../components/button';
-import {Header} from '../components/header';
-import {NavigationProp} from '@react-navigation/native';
+// File: js/screens/homeScreen.tsx
 
-export const HomeScreen = ({navigation}: {navigation: NavigationProp<any>}) => {
+import React from 'react';
+import {
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+} from 'react-native';
+import { Button } from '../components/button';
+import { Header } from '../components/header';
+import { NavigationProp } from '@react-navigation/native';
+import { showToastMessage } from '../utils/showToastMessage';
+
+export const HomeScreen = ({
+  navigation,
+}: {
+  navigation: NavigationProp<any>;
+}) => {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safe}>
       <Header title="Home Screen" />
-      <View style={styles.buttonsContainer}>
+      <ScrollView
+        contentContainerStyle={styles.buttonsContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <Button
           title="Banner Ad"
-          onPress={() => {
-            navigation.navigate('BannerAdScreen');
-          }}
+          onPress={() => navigation.navigate('BannerAdScreen')}
         />
         <Button
           title="Banner Ad 320X50"
-          onPress={() => {
-            navigation.navigate('BannerTestAdScreen');
-          }}
+          onPress={() => navigation.navigate('BannerTestAdScreen')}
         />
         <Button
           title="Banner Ad 300X250"
-          onPress={() => {
-            navigation.navigate('BannerNewAdScreen');
-          }}
+          onPress={() => navigation.navigate('BannerNewAdScreen')}
         />
         <Button
           title="Native Ad"
-          onPress={() => {
-            navigation.navigate('NativeAdScreen');
-          }}
+          onPress={() => navigation.navigate('NativeAdScreen')}
         />
         <Button
           title="Unified Ad"
-          onPress={() => {
-            navigation.navigate('UnifiedAdScreen');
-          }}
+          onPress={() => navigation.navigate('UnifiedAdScreen')}
         />
         <Button
           title="Interstitial Ad"
-          onPress={() => {
-            navigation.navigate('InterstitialAdScreen');
-          }}
+          onPress={() => navigation.navigate('InterstitialAdScreen')}
         />
         <Button
           title="Rewarded Ad"
+          onPress={() => navigation.navigate('RewardedAdScreen')}
+        />
+
+        {/* Added two buttons to explicitly test different adaptive banner modes */}
+        <Button
+          title="Adaptive Banner Ad (Anchored)"
           onPress={() => {
-            navigation.navigate('RewardedAdScreen');
+            showToastMessage('Opening Adaptive Banner (Anchored) screen...');
+            navigation.navigate('AdaptiveBannerAdScreen', { mode: 'anchored' });
           }}
         />
-      </View>
-    </View>
+        <Button
+          title="Adaptive Banner Ad (Inline)"
+          onPress={() => {
+            showToastMessage('Opening Adaptive Banner (Inline) screen...');
+            navigation.navigate('AdaptiveBannerAdScreen', { mode: 'inline' });
+          }}
+        />
+        <Button
+          title="Adaptive Banner Ad (Orientation)"
+          onPress={() => {
+            showToastMessage('Opening Adaptive Banner (Orientation) screen...');
+            navigation.navigate('AdaptiveBannerAdScreen', { mode: 'orientation' });
+          }}
+        />
+
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safe: {
     flex: 1,
+    backgroundColor: '#fff',
   },
   buttonsContainer: {
-    justifyContent: 'center',
+    padding: 16,
     alignItems: 'center',
-    flex: 1,
+    justifyContent: 'center',
     gap: 10,
   },
 });
