@@ -22,6 +22,7 @@ type Props = NativeStackScreenProps<
   'AdaptiveBannerAdScreen'
 >;
 
+// compute once: screen width in dp
 const screenWidthDp = Dimensions.get('window').width / PixelRatio.get();
 
 export default function AdaptiveBannerAdScreen({
@@ -29,8 +30,10 @@ export default function AdaptiveBannerAdScreen({
   navigation,
 }: Props) {
   const initialMode = route.params?.mode ?? 'anchored';
-  const [mode, setMode] = useState<'inline' | 'anchored'>(initialMode);
+  // now support all three modes
+  const [mode, setMode] = useState<'inline' | 'anchored' | 'orientation'>(initialMode);
   const placementId = 'adaptive_banner_test';
+  // only inline gets the 320dp override
   const inlineWidthDp = mode === 'inline' ? 320 : undefined;
 
   const [height, setHeight] = useState(0);
@@ -40,13 +43,13 @@ export default function AdaptiveBannerAdScreen({
   const [bannerKey, setBannerKey] = useState(0);
   const [position, setPosition] = useState<'top' | 'bottom'>('bottom');
 
+  // reset state & randomize anchored position on mode or key change
   useEffect(() => {
     setLoaded(false);
     setError(null);
     setHeight(0);
     if (mode === 'anchored') {
-      const random = Math.random();
-      setPosition(random < 0.5 ? 'top' : 'bottom');
+      setPosition(Math.random() < 0.5 ? 'top' : 'bottom');
     }
   }, [mode, bannerKey]);
 
@@ -65,6 +68,7 @@ export default function AdaptiveBannerAdScreen({
           width: `${(inlineWidthDp! / screenWidthDp) * 100}%`,
           alignSelf: 'center',
         },
+        // orientation and anchored both use 100% width by default
         { height },
       ]}
     >
@@ -81,6 +85,7 @@ export default function AdaptiveBannerAdScreen({
         }}
         onAdFailedToLoad={(e) => {
           const msg = e.nativeEvent.error;
+          // inline fallback
           if (mode === 'inline' && msg.includes('No fill')) {
             setMode('anchored');
           } else {
@@ -103,26 +108,24 @@ export default function AdaptiveBannerAdScreen({
         />
       </View>
 
-      {/* Anchored ad at top */}
+      {/* Anchored at top */}
       {mode === 'anchored' && position === 'top' && renderBanner()}
 
-      {/* Scrollable content with padding for header */}
+      {/* Scrollable content */}
       <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
         }
       >
-        {!loaded && !error && (
-          <ActivityIndicator style={styles.spinner} />
-        )}
-        {error && (
-          <Text style={styles.errorText}>{String(error)}</Text>
-        )}
-        {mode === 'inline' && renderBanner()}
+        {!loaded && !error && <ActivityIndicator style={styles.spinner} />}
+        {error && <Text style={styles.errorText}>{String(error)}</Text>}
+
+        {/* Render inline and orientation modes here */}
+        {(mode === 'inline' || mode === 'orientation') && renderBanner()}
       </ScrollView>
 
-      {/* Anchored ad at bottom */}
+      {/* Anchored at bottom */}
       {mode === 'anchored' && position === 'bottom' && renderBanner()}
     </View>
   );
@@ -138,7 +141,6 @@ const styles = StyleSheet.create({
   },
   container: {
     flexGrow: 1,
-    backgroundColor: '#fff',
     paddingTop: Platform.OS === 'ios' ? 100 : 80,
     paddingHorizontal: 16,
     paddingBottom: 24,
