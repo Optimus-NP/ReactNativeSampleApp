@@ -21,7 +21,7 @@ class BannerAdViewManager : SimpleViewManager<FrameLayout>() {
     override fun getName() = "RNBannerAdView"
 
     override fun createViewInstance(ctx: ThemedReactContext): FrameLayout {
-        Log.d(TAG, "🎯 createViewInstance called")
+        Log.d(TAG, "createViewInstance called")
         return FrameLayout(ctx).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -39,7 +39,7 @@ class BannerAdViewManager : SimpleViewManager<FrameLayout>() {
     @ReactProp(name = "placementId")
     fun setPlacementId(view: FrameLayout, pid: String) {
         placementId = pid
-        Log.d(TAG, "🎯 placementId set: $pid — loading banner")
+        Log.d(TAG, "placementId set: $pid — loading banner")
         loadAdaptiveBanner(view)
     }
 
@@ -47,7 +47,7 @@ class BannerAdViewManager : SimpleViewManager<FrameLayout>() {
     @ReactProp(name = "mode")
     fun setMode(view: FrameLayout, modeStr: String) {
         mode = modeStr.lowercase()
-        Log.d(TAG, "🎯 mode set: $mode")
+        Log.d(TAG, "mode set: $mode")
         // no loadAdaptiveBanner here
     }
 
@@ -55,14 +55,14 @@ class BannerAdViewManager : SimpleViewManager<FrameLayout>() {
     @ReactProp(name = "inlineWidthDp")
     fun setInlineWidthDp(view: FrameLayout, widthDp: Int) {
         inlineWidthDp = widthDp
-        Log.d(TAG, "🎯 inlineWidthDp set: ${widthDp}dp")
+        Log.d(TAG, "inlineWidthDp set: ${widthDp}dp")
         // no loadAdaptiveBanner here
     }
 
     private fun loadAdaptiveBanner(container: FrameLayout) {
         val ctx = container.context as? ThemedReactContext ?: return
         val pid = placementId ?: run {
-            Log.e(TAG, "❌ placementId is null — cannot load")
+            Log.e(TAG, "placementId is null — cannot load")
             return
         }
 
@@ -86,10 +86,10 @@ class BannerAdViewManager : SimpleViewManager<FrameLayout>() {
         val builder = AdRequestConfiguration.builder(ctx, pid)
         if (mode == "inline") {
             val wDp = inlineWidthDp ?: (screenWidthDp * 0.6f).toInt()
-            Log.d(TAG, "🟢 INLINE banner: widthDp=$wDp, maxHeight=250dp")
+            Log.d(TAG, "INLINE banner: widthDp=$wDp, maxHeight=250dp")
             builder.addInlineAdaptiveBannerAdSize(wDp, 250)
         } else {
-            Log.d(TAG, "🔵 ANCHORED banner: widthDp=$screenWidthDp")
+            Log.d(TAG, "ANCHORED banner: widthDp=$screenWidthDp")
             builder.addAnchoredAdaptiveBannerAdSize(screenWidthDp)
         }
 
@@ -98,7 +98,7 @@ class BannerAdViewManager : SimpleViewManager<FrameLayout>() {
         AdSterAdLoader.builder()
             .withAdsListener(object : MediationAdListener() {
                 override fun onBannerAdLoaded(ad: MediationBannerAd) {
-                    Log.d(TAG, "✅ onBannerAdLoaded (mode=$mode), adding view")
+                    Log.d(TAG, "onBannerAdLoaded (mode=$mode), adding view")
                     container.removeAllViews()  // ensure no overlap
                     ad.view?.let { adView ->
                         container.addView(adView)
@@ -109,7 +109,7 @@ class BannerAdViewManager : SimpleViewManager<FrameLayout>() {
                         val hSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
                         adView.measure(wSpec, hSpec)
                         val measuredH = adView.measuredHeight
-                        Log.d(TAG, "📏 measuredHeight=$measuredH px")
+                        Log.d(TAG, "measuredHeight=$measuredH px")
 
                         // send height back
                         val payload = Arguments.createMap().apply {
@@ -121,7 +121,7 @@ class BannerAdViewManager : SimpleViewManager<FrameLayout>() {
                 }
 
                 override fun onFailure(adError: AdError) {
-                    Log.e(TAG, "❌ onFailure: $adError")
+                    Log.e(TAG, "onFailure: $adError")
                     val payload = Arguments.createMap().apply {
                         putString("error", adError.toString())
                     }
