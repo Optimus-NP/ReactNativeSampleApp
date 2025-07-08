@@ -56,25 +56,15 @@ export const HomeScreen = ({
         <Button
           title="Adaptive Banner Ad (Anchored)"
           onPress={() => {
-            showToastMessage('Opening Adaptive Banner (Anchored) screen...');
             navigation.navigate('AdaptiveBannerAdScreen', { mode: 'anchored' });
           }}
         />
         <Button
           title="Adaptive Banner Ad (Inline)"
           onPress={() => {
-            showToastMessage('Opening Adaptive Banner (Inline) screen...');
             navigation.navigate('AdaptiveBannerAdScreen', { mode: 'inline' });
           }}
         />
-        <Button
-          title="Adaptive Banner Ad (Orientation)"
-          onPress={() => {
-            showToastMessage('Opening Adaptive Banner (Orientation) screen...');
-            navigation.navigate('AdaptiveBannerAdScreen', { mode: 'orientation' });
-          }}
-        />
-
       </ScrollView>
     </SafeAreaView>
   );

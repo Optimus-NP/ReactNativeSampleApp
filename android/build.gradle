@@ -1,0 +1,33 @@
+buildscript {
+    ext {
+        buildToolsVersion = "34.0.0"
+        minSdkVersion = 23
+        compileSdkVersion = 34
+        targetSdkVersion = 34
+        ndkVersion = "26.1.10909125"
+        kotlinVersion = "1.9.24"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+     allprojects {
+        repositories {
+        google()
+        mavenCentral()
+        maven {
+          url = uri("https://maven.pkg.github.com/adster-tech/orchestration-sdk")
+          credentials {
+            username = "adsterdemo"
+            password = "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"
+          }
+        }}
+    }
+}
+
+apply plugin: "com.facebook.react.rootproject"

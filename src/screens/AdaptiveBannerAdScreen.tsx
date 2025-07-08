@@ -16,6 +16,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/RootNavigation';
 import { Header } from '../components/header';
 import { AdaptiveBannerAd } from '../components/AdaptiveBannerAd';
+import { showToastMessage } from '../utils/showToastMessage';
 
 type Props = NativeStackScreenProps<
   RootStackParamList,
@@ -30,20 +31,23 @@ export default function AdaptiveBannerAdScreen({
   navigation,
 }: Props) {
   const initialMode = route.params?.mode ?? 'anchored';
-  // now support all three modes
-  const [mode, setMode] = useState<'inline' | 'anchored' | 'orientation'>(initialMode);
+  const [mode, setMode] = useState<'inline' | 'anchored'>(initialMode);
   const placementId = 'adaptive_banner_test';
-  // only inline gets the 320dp override
   const inlineWidthDp = mode === 'inline' ? 320 : undefined;
 
+  // banner state
   const [height, setHeight] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // refresh controls
   const [refreshing, setRefreshing] = useState(false);
   const [bannerKey, setBannerKey] = useState(0);
   const [position, setPosition] = useState<'top' | 'bottom'>('bottom');
 
-  // reset state & randomize anchored position on mode or key change
+  // messages log
+  const [messages, setMessages] = useState<string[]>([]);
+
   useEffect(() => {
     setLoaded(false);
     setError(null);
@@ -57,8 +61,14 @@ export default function AdaptiveBannerAdScreen({
     setRefreshing(true);
     setLoaded(false);
     setError(null);
+    setMessages([]);         // clear old messages
     setBannerKey((k) => k + 1);
   }, []);
+
+  const logAndToast = (msg: string) => {
+    showToastMessage(msg);
+    setMessages((prev) => [...prev, msg]);
+  };
 
   const renderBanner = () => (
     <View
@@ -68,7 +78,6 @@ export default function AdaptiveBannerAdScreen({
           width: `${(inlineWidthDp! / screenWidthDp) * 100}%`,
           alignSelf: 'center',
         },
-        // orientation and anchored both use 100% width by default
         { height },
       ]}
     >
@@ -79,19 +88,28 @@ export default function AdaptiveBannerAdScreen({
         inlineWidthDp={inlineWidthDp}
         style={{ width: '100%', height }}
         onAdLoaded={(e) => {
+          const msg = 'Adaptive Ad loaded successfully';
+          const impressionMsg = 'Adaptive Ad Impression';
+          console.log(msg, e.nativeEvent);
+          logAndToast(msg);
+          logAndToast(impressionMsg);
           setHeight(e.nativeEvent.adHeight);
           setLoaded(true);
           setRefreshing(false);
         }}
         onAdFailedToLoad={(e) => {
-          const msg = e.nativeEvent.error;
-          // inline fallback
-          if (mode === 'inline' && msg.includes('No fill')) {
+          const msg = `Ad failed to load: ${e.nativeEvent.error}`;
+          logAndToast(msg);
+          if (mode === 'inline' && e.nativeEvent.error.includes('No fill')) {
             setMode('anchored');
           } else {
-            setError(msg);
+            setError(e.nativeEvent.error);
             setRefreshing(false);
           }
+        }}
+        onAdImpression={() => {
+          const msg = 'Ad impression recorded';
+          logAndToast(msg);
         }}
       />
     </View>
@@ -108,24 +126,34 @@ export default function AdaptiveBannerAdScreen({
         />
       </View>
 
-      {/* Anchored at top */}
+      {/* Anchored ad at top */}
       {mode === 'anchored' && position === 'top' && renderBanner()}
 
       {/* Scrollable content */}
       <ScrollView
         contentContainerStyle={styles.container}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+          />
         }
       >
         {!loaded && !error && <ActivityIndicator style={styles.spinner} />}
-        {error && <Text style={styles.errorText}>{String(error)}</Text>}
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
-        {/* Render inline and orientation modes here */}
-        {(mode === 'inline' || mode === 'orientation') && renderBanner()}
+        {/* Inline banner */}
+        {mode === 'inline' && renderBanner()}
+
+        {/* Message log */}
+        {messages.map((m, i) => (
+          <Text key={i} style={styles.messageText}>
+            {m}
+          </Text>
+        ))}
       </ScrollView>
 
-      {/* Anchored at bottom */}
+      {/* Anchored ad at bottom */}
       {mode === 'anchored' && position === 'bottom' && renderBanner()}
     </View>
   );
@@ -159,5 +187,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginTop: 20,
     paddingHorizontal: 12,
+  },
+  messageText: {
+    fontSize: 14,
+    color: '#333',
+    marginTop: 8,
+    textAlign: 'center',
   },
 });
